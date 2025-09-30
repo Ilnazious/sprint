@@ -1,7 +1,12 @@
 from django.urls import path
-from . import views
+from .views import (
+    SubmitDataAPIView,
+    SubmitDataDetailAPIView,
+    SubmitDataListAPIView
+)
 
 urlpatterns = [
-    path('submitData/', views.SubmitDataView.as_view(), name='submit-data'),
-    path('mountain-passes/<int:pk>/', views.MountainPassDetailView.as_view(), name='mountain-pass-detail'),
+    path('submitData/', SubmitDataAPIView.as_view(), name='submit-data'),
+    path('submitData/<int:pk>/', SubmitDataDetailAPIView.as_view(), name='submit-data-detail'),
+    path('submitData/list/', SubmitDataListAPIView.as_view(), name='submit-data-list'),
 ]

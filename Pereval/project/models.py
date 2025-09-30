@@ -1,7 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-
 class User(models.Model):
     email = models.EmailField(unique=True, verbose_name='Email')
     fam = models.CharField(max_length=255, verbose_name='Фамилия')
@@ -14,8 +13,7 @@ class User(models.Model):
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
-        return f"{self.fam} {self.name}"
-
+        return f"{self.fam} {self.name} ({self.email})"
 
 class Coords(models.Model):
     latitude = models.FloatField(
@@ -35,7 +33,6 @@ class Coords(models.Model):
     def __str__(self):
         return f"({self.latitude}, {self.longitude}, {self.height})"
 
-
 class Level(models.Model):
     DIFFICULTY_CHOICES = [
         ('', 'Не указано'),
@@ -45,9 +42,6 @@ class Level(models.Model):
         ('2B', '2B'),
         ('3A', '3A'),
         ('3B', '3B'),
-        ('1А', '1А'),
-        ('2А', '2А'),
-        ('3А', '3А'),
     ]
 
     winter = models.CharField(max_length=2, choices=DIFFICULTY_CHOICES, blank=True, verbose_name='Зима')
@@ -60,13 +54,17 @@ class Level(models.Model):
         verbose_name_plural = 'Уровни сложности'
 
     def __str__(self):
-        return f"Зима:{self.winter} Лето:{self.summer}"
-
+        levels = []
+        if self.winter: levels.append(f"Зима: {self.winter}")
+        if self.summer: levels.append(f"Лето: {self.summer}")
+        if self.autumn: levels.append(f"Осень: {self.autumn}")
+        if self.spring: levels.append(f"Весна: {self.spring}")
+        return ", ".join(levels) if levels else "Не указано"
 
 class MountainPass(models.Model):
     STATUS_CHOICES = [
         ('new', 'Новый'),
-        ('pending', 'В работе'),
+        ('pending', 'На модерации'),
         ('accepted', 'Принят'),
         ('rejected', 'Отклонен'),
     ]
@@ -75,7 +73,6 @@ class MountainPass(models.Model):
     title = models.CharField(max_length=255, verbose_name='Название')
     other_titles = models.CharField(max_length=255, blank=True, verbose_name='Другие названия')
     connect = models.TextField(blank=True, verbose_name='Что соединяет')
-
     add_time = models.DateTimeField(auto_now_add=True, verbose_name='Время добавления')
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
@@ -95,8 +92,7 @@ class MountainPass(models.Model):
         ordering = ['-add_time']
 
     def __str__(self):
-        return self.title
-
+        return f"{self.title} ({self.get_status_display()})"
 
 class Image(models.Model):
     mountain_pass = models.ForeignKey(
